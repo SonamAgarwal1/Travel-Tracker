@@ -30,13 +30,10 @@ app.get("/", async (req, res) => {
 
 app.post("/add", async (req, res) => {
   const upperCountryCode = req.body.country;
-  const country =
-    upperCountryCode[0].toUpperCase() +
-    upperCountryCode.slice(1, upperCountryCode.length + 1).toLowerCase();
 
   const country_code_result = await db.query(
-    `select country_code from countries where country_name like '%' || $1 || '%'`,
-    [upperCountryCode]
+    `select country_code from countries where Lower(country_name) like '%' || $1 || '%'`,
+    [upperCountryCode.toLowerCase()]
   );
   if (country_code_result.rows.length !== 0) {
     const data = country_code_result.rows[0];
