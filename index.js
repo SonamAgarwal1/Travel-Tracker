@@ -41,11 +41,21 @@ app.post("/add", async (req, res) => {
   if (country_code_result.rows.length !== 0) {
     const data = country_code_result.rows[0];
     const countryCode = data.country_code;
-
-    await db.query("Insert into visited_countries(country_code) values ($1)", [
-      countryCode,
-    ]);
-    res.redirect("/");
+    try {
+      await db.query(
+        "Insert into visited_countries(country_code) values ($1)",
+        [countryCode]
+      );
+      res.redirect("/");
+    } catch (err) {
+      console.log(err);
+      const countries = await gettingVisitedCountries();
+      res.render("index.ejs", {
+        countries: countries,
+        total: countries.length,
+        error: "Country has already been added, try again.",
+      });
+    }
   } else {
     const countries = await gettingVisitedCountries();
     res.render("index.ejs", {
