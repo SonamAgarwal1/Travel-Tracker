@@ -35,7 +35,7 @@ app.post("/add", async (req, res) => {
     upperCountryCode.slice(1, upperCountryCode.length + 1).toLowerCase();
 
   const country_code_result = await db.query(
-    `select country_code from countries where country_name=$1`,
+    `select country_code from countries where country_name like '%' || $1 || '%'`,
     [upperCountryCode]
   );
   if (country_code_result.rows.length !== 0) {
