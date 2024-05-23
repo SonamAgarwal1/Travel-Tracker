@@ -24,7 +24,6 @@ const gettingVisitedCountries = async () => {
 
 app.get("/", async (req, res) => {
   const countries = await gettingVisitedCountries();
-  console.log(countries);
   res.render("index.ejs", { countries: countries, total: countries.length });
   //Write your code here.
 });
@@ -47,6 +46,13 @@ app.post("/add", async (req, res) => {
       countryCode,
     ]);
     res.redirect("/");
+  } else {
+    const countries = await gettingVisitedCountries();
+    res.render("index.ejs", {
+      countries: countries,
+      total: countries.length,
+      error: "Wrong country entered, please try again",
+    });
   }
 });
 
