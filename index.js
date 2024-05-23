@@ -15,14 +15,39 @@ db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-
-app.get("/", async (req, res) => {
+const gettingVisitedCountries = async () => {
   const result = await db.query("select country_code from visited_countries");
   const countries = [];
-  console.log(result.rows);
   result.rows.forEach((row) => countries.push(row.country_code));
-  res.render("index.ejs", { countries: countries, total: result.rowCount });
+  return countries;
+};
+
+app.get("/", async (req, res) => {
+  const countries = await gettingVisitedCountries();
+  console.log(countries);
+  res.render("index.ejs", { countries: countries, total: countries.length });
   //Write your code here.
+});
+
+app.post("/add", async (req, res) => {
+  const upperCountryCode = req.body.country;
+  const country =
+    upperCountryCode[0].toUpperCase() +
+    upperCountryCode.slice(1, upperCountryCode.length + 1).toLowerCase();
+
+  const country_code_result = await db.query(
+    `select country_code from countries where country_name=$1`,
+    [upperCountryCode]
+  );
+  if (country_code_result.rows.length !== 0) {
+    const data = country_code_result.rows[0];
+    const countryCode = data.country_code;
+
+    await db.query("Insert into visited_countries(country_code) values ($1)", [
+      countryCode,
+    ]);
+    res.redirect("/");
+  }
 });
 
 app.listen(port, () => {
